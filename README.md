@@ -1,5 +1,59 @@
 import java.util.*;
 
+public class investasiapp {
+    static Scanner scanner = new Scanner(System.in);
+    static Map<String, user> users = new HashMap<>();
+    static List<Saham> sahamList = new ArrayList<>();
+    static List<SBN> sbnList = new ArrayList<>();
+
+    public static void main(String[] args) {
+        seedData();
+        while (true) {
+            System.out.println("\n=== MENU UTAMA ===");
+            System.out.println("1. Login");
+            System.out.println("0. Keluar");
+            System.out.print("Pilih: ");
+            int pilih = scanner.nextInt();
+            scanner.nextLine();
+
+            if (pilih == 1) {
+                login();
+            } else if (pilih == 0) {
+                System.out.println("Terima kasih telah menggunakan aplikasi.");
+                break;
+            }
+        }
+    }
+
+    static void seedData() {
+        users.put("admin", new admin("admin", "admin123"));
+        users.put("cust", new Customer("cust", "cust123"));
+
+        sahamList.add(new Saham("BBCA", "Bank BCA", 9000));
+        sahamList.add(new Saham("TLKM", "Telkom Indonesia", 4500));
+        sahamList.add(new Saham("BRII", "Bank BRI", 5500));
+        sahamList.add(new Saham("SHPE", "Shopee Indonesia", 8000));
+        sahamList.add(new Saham("GJK", "Gojek Indonesia", 7500));
+        sbnList.add(new SBN("ORI021", 6.25, 36, "2028-01-01", 1000000000));
+        sbnList.add(new SBN("ORI023", 6.25, 36, "2028-01-01", 1000000000));
+        sbnList.add(new SBN("STO10", 6.25, 36, "2028-01-01", 1000000000));
+    }
+
+    static void login() {
+        System.out.print("Username: ");
+        String username = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        user user = users.get(username);
+        if (user != null && user.checkPassword(password)) {
+            user.menu(sahamList, sbnList);
+        } else {
+            System.out.println("Login gagal!");
+        }
+    }
+}
+
 abstract class user {
     protected String username;
     protected String password;
