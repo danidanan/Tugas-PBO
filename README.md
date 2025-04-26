@@ -131,3 +131,127 @@ class admin extends user {
         }
     }
 }
+class Customer extends user {
+    Map<String, Integer> sahamOwned = new HashMap<>();
+    Map<String, Double> sbnOwned = new HashMap<>();
+
+    Customer(String username, String password) {
+        super(username, password);
+    }
+
+    @Override
+    void menu(List<Saham> sahamList, List<SBN> sbnList) {
+        while (true) {
+            System.out.println("\n=== MENU CUSTOMER ===");
+            System.out.println("1. Beli Saham");
+            System.out.println("2. Jual Saham");
+            System.out.println("3. Beli SBN");
+            System.out.println("4. Simulasi Kupon SBN");
+            System.out.println("5. Lihat Portofolio");
+            System.out.println("6. Logout");
+            System.out.print("Pilih: ");
+            int pilih = investasiapp.scanner.nextInt();
+            investasiapp.scanner.nextLine();
+
+            switch (pilih) {
+                case 1 -> beliSaham(sahamList);
+                case 2 -> jualSaham(sahamList);
+                case 3 -> beliSBN(sbnList);
+                case 4 -> simulasiSBN(sbnList);
+                case 5 -> lihatPortofolio(sahamList, sbnList);
+                case 6 -> {
+                    return;
+                }
+            }
+        }
+    }
+
+    void beliSaham(List<Saham> sahamList) {
+        System.out.println("\n=== DAFTAR SAHAM ===");
+        for (int i = 0; i < sahamList.size(); i++) {
+            Saham s = sahamList.get(i);
+            System.out.printf("%d. %s (%s) - Rp %.2f\n", i + 1, s.nama, s.kode, s.harga);
+        }
+
+        System.out.print("Pilih nomor saham: ");
+        int index = investasiapp.scanner.nextInt() - 1;
+        if (index < 0 || index >= sahamList.size()) {
+            System.out.println("Pilihan tidak valid.");
+            return;
+        }
+
+        Saham s = sahamList.get(index);
+        System.out.print("Jumlah lembar: ");
+        int jumlah = investasiapp.scanner.nextInt();
+        sahamOwned.put(s.kode, sahamOwned.getOrDefault(s.kode, 0) + jumlah);
+        System.out.println("✅ Saham dibeli.");
+    }
+
+    void jualSaham(List<Saham> sahamList) {
+        if (sahamOwned.isEmpty()) {
+            System.out.println("⚠️ Anda belum memiliki saham.");
+            return;
+        }
+
+        System.out.println("\n=== SAHAM DIMILIKI ===");
+        List<String> kodeList = new ArrayList<>(sahamOwned.keySet());
+        for (int i = 0; i < kodeList.size(); i++) {
+            String kode = kodeList.get(i);
+            System.out.printf("%d. %s - %d lembar\n", i + 1, kode, sahamOwned.get(kode));
+        }
+
+        System.out.print("Pilih nomor saham: ");
+        int index = investasiapp.scanner.nextInt() - 1;
+        if (index < 0 || index >= kodeList.size()) {
+            System.out.println("Pilihan tidak valid.");
+            return;
+        }
+
+        String kode = kodeList.get(index);
+        System.out.print("Jumlah yang dijual: ");
+        int jumlah = investasiapp.scanner.nextInt();
+        int dimiliki = sahamOwned.get(kode);
+
+        if (jumlah > dimiliki) {
+            System.out.println("❌ Jumlah melebihi kepemilikan.");
+        } else {
+            sahamOwned.put(kode, dimiliki - jumlah);
+            if (sahamOwned.get(kode) == 0) sahamOwned.remove(kode);
+            System.out.println("✅ Saham dijual.");
+        }
+    }
+
+    void beliSBN(List<SBN> sbnList) {
+        System.out.println("\n=== DAFTAR SBN ===");
+        for (int i = 0; i < sbnList.size(); i++) {
+            SBN s = sbnList.get(i);
+            System.out.printf("%d. %s - Bunga: %.2f%% - Kuota: Rp %.2f\n", i + 1, s.nama, s.bunga, s.kuotaNasional);
+        }
+
+        System.out.print("Pilih nomor SBN: ");
+        int index = investasiapp.scanner.nextInt() - 1;
+        SBN s = sbnList.get(index);
+        System.out.print("Nominal pembelian: ");
+        double nominal = investasiapp.scanner.nextDouble();
+
+        if (nominal > s.kuotaNasional) {
+            System.out.println("❌ Kuota tidak cukup.");
+        } else {
+            sbnOwned.put(s.nama, sbnOwned.getOrDefault(s.nama, 0.0) + nominal);
+            s.kuotaNasional -= nominal;
+            System.out.println("✅ SBN dibeli.");
+        }
+    }
+
+    void simulasiSBN(List<SBN> sbnList) {
+        System.out.println("\n=== SIMULASI KUPON SBN ===");
+        for (String nama : sbnOwned.keySet()) {
+            double nominal = sbnOwned.get(nama);
+            for (SBN s : sbnList) {
+                if (s.nama.equals(nama)) {
+                    double kupon = s.bunga / 12 / 100 * 0.9 * nominal;
+                    System.out.printf("%s: Kupon/bulan Rp %.2f\n", nama, kupon);
+                }
+            }
+        }
+    }
