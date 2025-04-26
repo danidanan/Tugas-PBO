@@ -255,3 +255,64 @@ class Customer extends user {
             }
         }
     }
+  void lihatPortofolio(List<Saham> sahamList, List<SBN> sbnList) {
+        System.out.println("\n=== PORTOFOLIO ===");
+        double totalSaham = 0, totalKupon = 0;
+
+        System.out.println(">> SAHAM:");
+        for (String kode : sahamOwned.keySet()) {
+            int lembar = sahamOwned.get(kode);
+            for (Saham s : sahamList) {
+                if (s.kode.equals(kode)) {
+                    double total = s.harga * lembar;
+                    totalSaham += total;
+                    System.out.printf("%s - %d lembar - Nilai: Rp %.2f\n", s.nama, lembar, total);
+                }
+            }
+        }
+
+        System.out.printf("Total Investasi Saham: Rp %.2f\n", totalSaham);
+
+        System.out.println("\n>> SBN:");
+        for (String nama : sbnOwned.keySet()) {
+            double nominal = sbnOwned.get(nama);
+            for (SBN s : sbnList) {
+                if (s.nama.equals(nama)) {
+                    double kupon = s.bunga / 12 / 100 * 0.9 * nominal;
+                    totalKupon += kupon;
+                    System.out.printf("%s - Rp %.2f - Kupon/bulan: Rp %.2f\n", nama, nominal, kupon);
+                }
+            }
+        }
+
+        System.out.printf("Total Kupon SBN/bulan: Rp %.2f\n", totalKupon);
+    }
+}
+
+class Saham {
+    String kode;
+    String nama;
+    double harga;
+
+    Saham(String kode, String nama, double harga) {
+        this.kode = kode;
+        this.nama = nama;
+        this.harga = harga;
+    }
+}
+
+class SBN {
+    String nama;
+    double bunga;
+    int jangkaWaktu;
+    String tanggalJatuhTempo;
+    double kuotaNasional;
+
+    SBN(String nama, double bunga, int jangkaWaktu, String tanggalJatuhTempo, double kuotaNasional) {
+        this.nama = nama;
+        this.bunga = bunga;
+        this.jangkaWaktu = jangkaWaktu;
+        this.tanggalJatuhTempo = tanggalJatuhTempo;
+        this.kuotaNasional = kuotaNasional;
+    }
+}
